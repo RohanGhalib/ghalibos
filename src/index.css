@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* === THEME: Dark (default) === */
+:root {
+  --color-surface: 15 23 42;      /* slate-900 */
+  --color-surface-2: 30 41 59;    /* slate-800 */
+  --color-accent: 99 102 241;     /* indigo-500 */
+  --color-text: 226 232 240;      /* slate-200 */
+  --color-text-muted: 100 116 139; /* slate-500 */
+  --color-border: 51 65 85;       /* slate-700 */
+  --wallpaper: radial-gradient(ellipse at top left, #1e1b4b 0%, #0f172a 50%, #0c1622 100%);
+}
+
+/* === THEME: Light === */
+[data-theme="light"] {
+  --color-surface: 248 250 252;
+  --color-surface-2: 241 245 249;
+  --color-accent: 79 70 229;
+  --color-text: 15 23 42;
+  --color-text-muted: 100 116 139;
+  --color-border: 203 213 225;
+  --wallpaper: radial-gradient(ellipse at top, #e0e7ff 0%, #f8fafc 60%, #dbeafe 100%);
+}
+
+/* === THEME: Aurora === */
+[data-theme="aurora"] {
+  --color-surface: 2 6 23;
+  --color-surface-2: 15 23 42;
+  --color-accent: 52 211 153;
+  --color-text: 209 250 229;
+  --color-text-muted: 110 231 183;
+  --color-border: 6 78 59;
+  --wallpaper: radial-gradient(ellipse at top left, #064e3b 0%, #020617 40%, #0c4a6e 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--color-border));
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--color-accent) / 0.6);
+}
+
+/* Glass morphism utility */
+.glass {
+  background: rgb(var(--color-surface) / 0.75);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgb(var(--color-border) / 0.5);
+}
+
+.glass-strong {
+  background: rgb(var(--color-surface) / 0.92);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border: 1px solid rgb(var(--color-border) / 0.6);
+}
