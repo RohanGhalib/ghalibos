@@ -7,6 +7,8 @@ const { execFile } = require('child_process');
 const { promisify } = require('util');
 
 const execFileAsync = promisify(execFile);
+const CPU_SAMPLE_INTERVAL_MS = 150;
+const LINUX_WIRELESS_MAX_LINK_QUALITY = 70;
 
 const app = express();
 const PORT = 3001;
@@ -27,7 +29,7 @@ function readCpuSnapshot() {
 
 async function getCpuUsagePercent() {
   const start = readCpuSnapshot();
-  await sleep(150);
+  await sleep(CPU_SAMPLE_INTERVAL_MS);
   const end = readCpuSnapshot();
 
   let totalDelta = 0;
@@ -132,12 +134,22 @@ function parseLinuxWirelessStrength(raw) {
   const lines = raw.split('\n').map((l) => l.trim()).filter(Boolean);
   const ifaceLine = lines.find((line) => line.includes(':'));
   if (!ifaceLine) return null;
-  const [_, metrics] = ifaceLine.split(':');
-  if (!metrics) return null;
-  const firstMetric = metrics.trim().split(/\s+/)[0];
-  const linkQuality = Number.parseFloat(firstMetric);
+  const colonIndex = ifaceLine.indexOf(':');
+  if (colonIndex < 0) return null;
+
+  const ifaceName = ifaceLine.slice(0, colonIndex).trim();
+  const rawMetrics = ifaceLine.slice(colonIndex + 1).trim();
+  if (!ifaceName || !rawMetrics) return null;
+
+  const metricsParts = rawMetrics.split(/\s+/).filter(Boolean);
+  if (metricsParts.length === 0) return null;
+  const rawLinkQuality = metricsParts[0];
+  const linkQuality = Number.parseFloat(rawLinkQuality);
   if (!Number.isFinite(linkQuality)) return null;
-  return Math.max(0, Math.min(100, Math.round((linkQuality / 70) * 100)));
+  return Math.max(
+    0,
+    Math.min(100, Math.round((linkQuality / LINUX_WIRELESS_MAX_LINK_QUALITY) * 100))
+  );
 }
 
 async function hasDefaultRoute() {
@@ -177,7 +189,7 @@ async function getWifiStatus() {
         connected = true;
         ssid = maybeSsid;
       }
-      const { stdout: wirelessOut } = await execFileAsync('cat', ['/proc/net/wireless']);
+      const wirelessOut = await readText('/proc/net/wireless');
       const parsedStrength = parseLinuxWirelessStrength(wirelessOut);
       if (parsedStrength !== null) strength = parsedStrength;
     } catch {
